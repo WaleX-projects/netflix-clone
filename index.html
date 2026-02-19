@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAMFLIX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Urbanist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['"Bebas Neue"', 'sans-serif'],
+                        'body': ['"Urbanist"', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand': { DEFAULT: '#E50914', dark: '#B20710', light: '#FF4444' },
+                        'surface': { 50: '#f8f8f8', 100: '#e8e8e8', 200: '#d4d4d4', 700: '#2a2a2a', 800: '#1a1a1a', 900: '#141414', 950: '#0a0a0a' },
+                    }
+                }
+            }
+        };
+    </script>
+   
+</head>
+<body>
+
+    <!-- ==================== SPLASH SCREEN ==================== -->
+    <div id="splash-screen" class="fixed inset-0 z-[999] flex items-center justify-center" style="background: #0a0a0a;">
+        <div class="text-center">
+            <h1 class="font-display text-7xl md:text-9xl tracking-wider animate-logo-pulse" style="color: #E50914;">STREAMFLIX</h1>
+            <div class="mt-6 w-48 h-1 mx-auto rounded-full overflow-hidden" style="background: rgba(255,255,255,0.1);">
+                <div class="h-full rounded-full" style="background: #E50914; animation: progress-bar 1.8s ease-in-out forwards;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LOGIN VIEW ==================== -->
+    <div id="login-view" class="view">
+        <div class="min-h-screen flex items-center justify-center relative" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0e 40%, #0a0a1a 100%);">
+            <!-- Decorative circles -->
+            <div class="absolute top-20 left-10 w-64 h-64 rounded-full opacity-[0.03]" style="background: #E50914; filter: blur(80px);"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 rounded-full opacity-[0.04]" style="background: #E50914; filter: blur(100px);"></div>
+
+            <div class="w-full max-w-md px-6 animate-fade-in">
+                <h1 class="font-display text-6xl md:text-7xl text-center tracking-wider mb-10" style="color: #E50914;">STREAMFLIX</h1>
+                <div class="rounded-xl p-8 md:p-10" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06);">
+                    <h2 class="text-2xl font-bold mb-6">Sign In</h2>
+                    <form id="login-form" class="space-y-5">
+                        <div>
+                            <input type="email" id="login-email" placeholder="Email address"
+                                class="w-full px-4 py-3.5 rounded-lg text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-brand transition-all"
+                                style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 16px;"
+                                value="demo@streamflix.com" autocomplete="email">
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="login-password" placeholder="Password"
+                                class="w-full px-4 py-3.5 rounded-lg text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-brand transition-all"
+                                style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 16px;"
+                                value="streamflix" autocomplete="current-password">
+                            <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <button type="submit" id="login-btn"
+                            class="w-full py-3.5 rounded-lg font-bold text-lg transition-all duration-300 hover:brightness-110 active:scale-[0.98]"
+                            style="background: #E50914; color: white;">
+                            Sign In
+                        </button>
+                        <div id="login-error" class="text-red-400 text-sm text-center hidden"></div>
+                    </form>
+                    <div class="mt-6 text-center text-sm" style="color: rgba(255,255,255,0.4);">
+                        Demo credentials pre-filled &middot; Just click Sign In
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PROFILE SELECT VIEW ==================== -->
+    <div id="profile-view" class="view">
+        <div class="min-h-screen flex flex-col items-center justify-center px-6" style="background: #141414;">
+            <h1 class="font-display text-4xl md:text-5xl tracking-wider mb-2" style="color: #E50914;">STREAMFLIX</h1>
+            <h2 class="text-2xl md:text-3xl font-light mb-10 mt-2" style="color: rgba(255,255,255,0.85);">Who's watching?</h2>
+            <div id="profiles-grid" class="flex flex-wrap justify-center gap-6 md:gap-8 max-w-3xl"></div>
+        </div>
+    </div>
+
+    <!-- ==================== BROWSE VIEW ==================== -->
+    <div id="browse-view" class="view">
+        <!-- Navbar -->
+        <nav id="navbar" class="navbar" style="background: transparent;">
+            <div class="flex items-center gap-6 flex-1">
+                <h1 class="font-display text-3xl md:text-4xl tracking-wider cursor-pointer" style="color: #E50914;" onclick="App.switchView('browse')">STREAMFLIX</h1>
+                <div class="hidden md:flex items-center gap-5 text-sm font-medium" style="color: rgba(255,255,255,0.7);">
+                    <span class="cursor-pointer hover:text-white transition-colors" style="color:#fff;">Home</span>
+                    <span class="cursor-pointer hover:text-white transition-colors">TV Shows</span>
+                    <span class="cursor-pointer hover:text-white transition-colors">Movies</span>
+                    <span class="cursor-pointer hover:text-white transition-colors">My List</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="search-btn" class="text-white hover:text-brand transition-colors text-lg" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button id="nav-profile-btn" class="flex items-center gap-2 group">
+                    <div id="nav-profile-avatar" class="w-8 h-8 rounded overflow-hidden"></div>
+                    <i class="fas fa-caret-down text-xs text-white group-hover:rotate-180 transition-transform"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="hero-section" class="relative" style="min-height: 85vh;">
+            <div id="hero-bg" class="absolute inset-0 hero-bg"></div>
+            <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.4) 50%, rgba(20,20,20,0.1) 100%);"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-48" style="background: linear-gradient(transparent, #141414);"></div>
+            <div class="relative z-10 flex items-end h-full px-[4%] pb-[12%]" style="min-height: 85vh;">
+                <div class="max-w-xl animate-fade-in">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="font-display text-lg tracking-widest" style="color: #E50914;">S</span>
+                        <span class="text-xs font-bold uppercase tracking-[0.3em]" style="color: rgba(255,255,255,0.6);">Original Series</span>
+                    </div>
+                    <h2 id="hero-title" class="font-display text-5xl md:text-7xl lg:text-8xl tracking-wide mb-4 leading-none"></h2>
+                    <p id="hero-desc" class="text-sm md:text-base font-light leading-relaxed mb-6 line-clamp-3" style="color: rgba(255,255,255,0.8);"></p>
+                    <div class="flex items-center gap-3">
+                        <button id="hero-play-btn"
+                            class="flex items-center gap-2 px-7 py-3 rounded-md font-bold text-lg transition-all duration-200 hover:brightness-90 active:scale-95"
+                            style="background: #fff; color: #141414;">
+                            <i class="fas fa-play text-sm"></i> Play
+                        </button>
+                        <button id="hero-info-btn"
+                            class="flex items-center gap-2 px-7 py-3 rounded-md font-bold text-lg transition-all duration-200 hover:brightness-125 active:scale-95"
+                            style="background: rgba(109,109,110,0.7); color: #fff;">
+                            <i class="fas fa-info-circle"></i> More Info
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 mt-4 text-sm" style="color: rgba(255,255,255,0.5);">
+                        <span id="hero-match" class="font-bold" style="color: #46d369;"></span>
+                        <span id="hero-year"></span>
+                        <span id="hero-rating" class="px-1.5 py-0.5 border text-xs" style="border-color: rgba(255,255,255,0.3);"></span>
+                        <span id="hero-duration"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Genre Rows -->
+        <section id="genre-rows" class="relative z-10" style="margin-top: -6rem;"></section>
+
+        <!-- Footer -->
+        <footer class="px-[4%] py-12 mt-8">
+            <div class="flex gap-5 mb-6" style="color: rgba(255,255,255,0.4);">
+                <a href="https://poe.com" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://poe.com" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                <a href="https://poe.com" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+                <a href="https://poe.com" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-youtube"></i></a>
+            </div>
+            <p class="text-xs" style="color: rgba(255,255,255,0.25);">&copy; 2025 STREAMFLIX. A Netflix Clone Demo. All mock data for demonstration purposes.</p>
+        </footer>
+    </div>
+
+    <!-- ==================== SEARCH OVERLAY ==================== -->
+    <div id="search-overlay" class="search-overlay hidden">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center gap-4 mb-8">
+                <i class="fas fa-search text-xl" style="color: rgba(255,255,255,0.5);"></i>
+                <input type="text" id="search-input" placeholder="Search titles, genres, descriptions..."
+                    class="flex-1 bg-transparent text-2xl font-light outline-none text-white placeholder-gray-500"
+                    style="font-size: 20px;">
+                <button id="search-close" class="text-white text-2xl hover:text-brand transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="search-results"></div>
+        </div>
+    </div>
+
+    <!-- ==================== DETAIL MODAL ==================== -->
+    <div id="detail-modal" class="detail-backdrop hidden"></div>
+
+    <!-- ==================== PLAYER ==================== -->
+    <div id="player-view" class="player-overlay hidden">
+        <div id="player-video-bg" class="player-video-bg"></div>
+        <!-- Player Top Bar -->
+        <div class="absolute top-0 left-0 right-0 p-4 md:p-6 flex items-center justify-between z-10"
+            style="background: linear-gradient(rgba(0,0,0,0.7), transparent);">
+            <button id="player-back" class="flex items-center gap-3 text-white hover:text-brand transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+                <span class="font-semibold hidden md:inline">Back to Browse</span>
+            </button>
+            <h3 id="player-title" class="font-display text-2xl tracking-wide"></h3>
+            <div class="w-10"></div>
+        </div>
+        <!-- Centered Play/Pause -->
+        <button id="player-center-toggle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+            style="background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
+            <i class="fas fa-pause text-white text-3xl" id="player-center-icon"></i>
+        </button>
+        <!-- Player Controls -->
+        <div class="player-controls z-10" id="player-controls">
+            <div class="progress-track" id="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button id="player-play-btn" class="text-white hover:text-brand transition-colors text-xl">
+                        <i class="fas fa-pause"></i>
+                    </button>
+                    <button class="text-white hover:text-brand transition-colors" onclick="App.playerSkip(-10)">
+                        <i class="fas fa-backward text-lg"></i>
+                    </button>
+                    <button class="text-white hover:text-brand transition-colors" onclick="App.playerSkip(10)">
+                        <i class="fas fa-forward text-lg"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button id="volume-btn" class="text-white hover:text-brand transition-colors">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        <input type="range" id="volume-slider" min="0" max="100" value="80"
+                            class="w-20 accent-brand hidden md:block" style="font-size: 16px;">
+                    </div>
+                    <span id="player-time" class="text-sm font-light" style="color: rgba(255,255,255,0.6);">0:00 / 2:00:00</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="text-white hover:text-brand transition-colors" onclick="App.togglePlayerFullscreen()">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST ==================== -->
+    <div id="toast" class="toast" style="background: #E50914; color: white;"></div>
+
+    <!-- ==================== PROFILE DROPDOWN ==================== -->
+    <div id="profile-dropdown" class="fixed hidden z-[110] rounded-lg py-2 shadow-2xl" style="background: rgba(20,20,20,0.95); border: 1px solid rgba(255,255,255,0.1); min-width: 200px; backdrop-filter: blur(20px);"></div>
+<script src="main.js"></script>
+    
+</body>
+</html>
