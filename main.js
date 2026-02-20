@@ -125,7 +125,7 @@
     // ==========================================
     const API_CONFIG = {
         BASE_URL: 'http://127.0.0.1:8000/api',
-        USE_MOCK: true // Set false to use real Django backend
+        USE_MOCK: false // Set false to use real Django backend
     };
 
     const API = {
@@ -161,7 +161,7 @@
             }
             return this._fetch('/login/', {
                 method: 'POST',
-                body: JSON.stringify({ email: email, password: password })
+                body: JSON.stringify({ username: email, password: password })
             });
         },
 
@@ -200,8 +200,38 @@
         playerProgress: 0,
         playerInterval: null,
         myList: [],
+       
     };
+    // =============================================
+    // ONLOAD CHECK ID USER EXIST
+    // =============================================
 
+   window.addEventListener('DOMContentLoaded', async function() {
+    const savedToken = localStorage.getItem('streamflix_token');
+    
+    // 1. Always start global events (buttons, search, etc)
+    App.bindGlobalEvents();
+
+    if (savedToken) {
+        Store.authToken = savedToken;
+        API.token = savedToken;
+        
+        try {
+            // 2. Hide splash screen faster if we are auto-logging in
+            document.getElementById('splash-screen').style.display = 'none';
+            
+            await App.loadProfiles();
+            App.switchView('profile');
+            App.renderProfiles();
+        } catch (err) {
+            localStorage.removeItem('streamflix_token');
+            App.init(); // Fallback to splash -> login
+        }
+    } else {
+        // Normal flow for new users
+        App.init();
+    }
+});
     // ==========================================
     // APPLICATION CONTROLLER
     // ==========================================
@@ -255,6 +285,7 @@
                 var result = await API.login(email, password);
                 Store.authToken = result.access;
                 API.token = result.access;
+                localStorage.setItem('streamflix_token', result.access);
                 showToast('Welcome to STREAMFLIX!');
                 await this.loadProfiles();
                 this.switchView('profile');
@@ -270,20 +301,24 @@
 
         async loadProfiles() {
             var profiles = await API.getProfiles();
+            
             Store.profiles = profiles;
+            console.log(Store.profiles)
         },
 
         renderProfiles() {
+            
             var grid = document.getElementById('profiles-grid');
             grid.innerHTML = '';
-            Store.profiles.forEach(function(profile) {
+            
+             Store.profiles.forEach(function(profile) {
                 var card = document.createElement('div');
                 card.className = 'profile-card text-center';
                 card.setAttribute('data-profile-id', profile.id);
 
                 var initial = profile.name.charAt(0).toUpperCase();
                 var avatarSVG = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-                    '<rect width="100" height="100" rx="8" fill="' + profile.color + '"/>' +
+                    '<rect width="100" height="100" rx="8" fill="red"/>' +
                     '<text x="50" y="62" text-anchor="middle" fill="white" font-size="48" font-family="Urbanist, sans-serif" font-weight="700">' + initial + '</text>';
                 if (profile.is_kids) {
                     avatarSVG += '<text x="50" y="82" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="14" font-family="Urbanist, sans-serif">★</text>';
@@ -303,14 +338,15 @@
             });
         },
 
-        async selectProfile(profile) {
-            Store.currentProfile = profile;
-            showToast('Welcome, ' + profile.name + '!');
-            this.switchView('browse');
-            await this.loadMovies();
-            this.renderBrowse();
-        },
-
+        
+async selectProfile(profile) {
+    Store.currentProfile = profile;
+    // Changed profile.username to profile.name
+    showToast('Welcome, ' + profile.name + '!'); 
+    this.switchView('browse');
+    await this.loadMovies();
+    this.renderBrowse();
+},
         async loadMovies() {
             Store.movies = await API.getMovies();
 
@@ -344,9 +380,11 @@
 
         renderHero() {
             var movie = Store.heroMovie;
+            console.log(movie)
             if (!movie) return;
 
-            document.getElementById('hero-bg').style.background = getHeroGradient(movie);
+            document.getElementById('hero-bg').style.backgroundImage= `url(${movie.thumbnail})`;
+
             document.getElementById('hero-title').textContent = movie.title;
             document.getElementById('hero-desc').textContent = movie.description;
             document.getElementById('hero-match').textContent = movie.match + '% Match';
@@ -687,7 +725,9 @@
             dropdown.style.right = (window.innerWidth - rect.right) + 'px';
 
             dropdown.innerHTML = '';
+           
             if (Store.profiles) {
+                console.log(Store.profiles)
                 Store.profiles.forEach(function(profile) {
                     var item = document.createElement('button');
                     item.className = 'flex items-center gap-3 w-full px-4 py-2.5 hover:bg-white/10 transition-colors text-left';
